@@ -10,8 +10,8 @@
 uint8_t broadcastAddress[] = {0xA4, 0xCF, 0x12, 0xC5, 0x17, 0x18};
 
 //these variables determine where the robot will turn and enable it to go
-float direction;
-bool enable;
+uint8_t state;
+
 
 // Define variables to store incoming readings
 // int for incoming obstacle is used to determine what direction the obstruction is in (1 for left, 2 for center, 3 for right)
@@ -25,8 +25,8 @@ String success;
 //Structure example to send data
 //Must match the receiver structure
 typedef struct recieve_message {
-    float dir;
-    bool en;
+    uint8_t ste;
+    
 } send_message;
 
 typedef struct send_message {
@@ -55,15 +55,16 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   memcpy(&incomingReadings, incomingData, sizeof(incomingReadings));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  direction=recieve_message.dir;
-  enable=recieve_message.en;
+  state=recieve_message.ste;
+  
 }
 //////////////////This is where we'll do obstacle calculations//////////////////////////
 void obstaclecalc(){
   obst= 0;
 }
 
-
+void SendToArduino(){
+    
  
 void setup() {
   // Init Serial Monitor
