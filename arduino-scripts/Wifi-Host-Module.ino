@@ -10,8 +10,7 @@
 uint8_t broadcastAddress[] = {0x8C, 0xAA, 0xB5, 0x0C, 0xDF, 0x34};
 
 //these variables determine where the robot will turn and enable it to go
-float direction;
-bool enable ;
+uint8_t state;
 
 // Define variables to store incoming readings
 // int for incoming obstacle is used to determine what direction the obstruction is in (1 for left, 2 for center, 3 for right)
@@ -25,8 +24,8 @@ String success;
 //Structure example to send data
 //Must match the receiver structure
 typedef struct send_message {
-    float dir;
-    bool en;
+    uint8_t ste;
+ 
 } send_message;
 
 typedef struct recieve_message {
@@ -59,8 +58,7 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 }
 //////////////////This is where we'll do apriltag calculations//////////////////////////
 void aprilcalc(){
-  dir=100.2;
-  en=0;
+  ste=0;
 }
 
 
@@ -106,8 +104,7 @@ void loop() {
     aprilcalc();
 
     //Set values to send
-    send_message.dir = direction;
-    send_message.en = enable;
+    send_message.ste= state;
 
     // Send message via ESP-NOW
     esp_now_send(broadcastAddress, (uint8_t *) &apriltag, sizeof(apriltag));
