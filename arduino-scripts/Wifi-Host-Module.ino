@@ -110,7 +110,7 @@ void loop() {
     send_message.en = enable;
 
     // Send message via ESP-NOW
-    esp_now_send(broadcastAddress, (uint8_t *) &send_message, sizeof(send_message));
+    esp_now_send(broadcastAddress, (uint8_t *) &apriltag, sizeof(apriltag));
 
  
   }
