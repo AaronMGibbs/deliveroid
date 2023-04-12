@@ -11,7 +11,7 @@ uint8_t broadcastAddress[] = {0xA4, 0xCF, 0x12, 0xC5, 0x17, 0x18};
 
 //these variables determine where the robot will turn and enable it to go
 uint8_t state;
-
+bool globalenable;
 
 // Define variables to store incoming readings
 // int for incoming obstacle is used to determine what direction the obstruction is in (1 for left, 2 for center, 3 for right)
@@ -63,15 +63,13 @@ void obstaclecalc(){
   obst= 0;
 }
 
-void SendToArduino(){
+
     
  
 void setup() {
   // Init Serial Monitor
   Serial.begin(115200);
-
-  // Init DHT sensor
-  //dht.begin();
+  Serial1.begin(115200);
  
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
