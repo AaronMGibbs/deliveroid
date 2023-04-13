@@ -39,7 +39,7 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
 
     for stream in input_streams:
 
-        video = cv2.VideoCapture(0)
+        video = cv2.VideoCapture(1)
 
         output = None
 
@@ -79,21 +79,50 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                     robotAngle =  (numpy.arccos(poseMatrix1[0]) / math.pi) * 180
                 else:
                     robotAngle =  (numpy.arccos(poseMatrix1[0]) / math.pi) * -180
-
+                
                 #destination coordinates
-                destCoordTransposed = [(destCoord[0] - robotCoordinates), (destCoord[1] - robotCoordinates)]
+                destCoordTransposed = [(destCoord[0] - robotCoordinates[0]), (destCoord[1] - robotCoordinates[1])]
 
                 transposedRobotCoordinates = robotCoordinates[0] - robotCoordinates[0], robotCoordinates[1] - robotCoordinates[1]
                 
-                destinationAngleFromXAxis = 180 / math.pi * numpy.arctan(destCoordTransposed[1]/destCoordTransposed[0])[1]
+                destinationAngleFromXAxis = 180 / math.pi * numpy.arctan(destCoordTransposed[1]/destCoordTransposed[0])
 
-                if (robotAngle > destinationAngleFromXAxis):
-                    destinationAngle = robotAngle - destinationAngleFromXAxis
-                else:
-                    destinationAngle = destinationAngleFromXAxis - robotAngle
+                # if (robotAngle > destinationAngleFromXAxis):
+                #     destinationAngle = robotAngle - destinationAngleFromXAxis
+                # else:
+                #     destinationAngle = destinationAngleFromXAxis - robotAngle
+
+                destinationAngle = 0
+
+                destX = destCoordTransposed[0]
+                destY = destCoordTransposed[1]
+
+                # cordinateSign = (destCoordTransposed > 0).any()
+
+                # case 1
+                if (destX>0 and (destY)>0):
+                    destinationAngle = destinationAngleFromXAxis
+                
+                # case 2
+                elif (destX<0 and destY>0):
+                    destinationAngleFromXAxis = 180 / math.pi * numpy.arctan(abs(destCoordTransposed[1])/abs(destCoordTransposed[0]))
+                    destinationAngle = 180 - destinationAngleFromXAxis
+                
+                # case 3
+                elif (destX<0 and destY<0):
+                    destinationAngleFromXAxis = 180 / math.pi * numpy.arctan((destCoordTransposed[1])/(destCoordTransposed[0]))
+                    destinationAngle = -1 * (180 - destinationAngleFromXAxis)
+
+                # case 4
+                elif (destX > 0 and destY < 0):
+                    destinationAngleFromXAxis = 180 / math.pi * numpy.arctan((destCoordTransposed[1])/(destCoordTransposed[0]))
+                    destinationAngle = destinationAngleFromXAxis
+
+                destinationAngle = destinationAngle - robotAngle
 
                 print("\r robot position: ",robotCoordinates)
                 print("\r robot angle: ", robotAngle)
+                print("\r destination angle from x axis: ", destinationAngleFromXAxis)
                 print("\r destination angle: ", destinationAngle)
 
             # if (pose_matrix_flag != False):
