@@ -1,4 +1,4 @@
-///On Board Wifi Module (Receiver)
+//On Board Wifi Module (Receiver)
 
 #include <ESP8266WiFi.h>
 #include <espnow.h>
@@ -12,7 +12,7 @@ uint8_t broadcastAddress[] = {0xA4, 0xCF, 0x12, 0xC5, 0x17, 0x18};
 
 
 //these variables determine the robot's state
-int state1;
+int state;
 
 // Variable to store if sending data was successful
 String success;
@@ -26,7 +26,7 @@ typedef struct receive_message {
 
 
 // Create a struct_message to hold incoming value from the host
-recieve_message incomingReadings;
+receive_message incomingReadings;
 
 
 // Callback when data is received
@@ -34,8 +34,8 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   memcpy(&incomingReadings, incomingData, sizeof(incomingReadings));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  state=receive_message.ste;
-  digitalwrite(10, state);
+  state= incomingReadings.ste;
+  digitalWrite(10, state);
   
 }
   
@@ -68,6 +68,5 @@ void setup() {
  
 void loop() {
   }
- 
 
 
