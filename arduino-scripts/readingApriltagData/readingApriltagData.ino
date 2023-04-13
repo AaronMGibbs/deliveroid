@@ -19,13 +19,5 @@ void loop(){
         Serial.println(last_value);
       }
     }
-    
-
-
-    
-  
-
-  
-
   }
 }
