@@ -68,36 +68,39 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                                                    verbose=3,
                                                    annotation=True)
 
+            # coordinate array flag is asserted when april tag is detected and robotCoordinate array fills up
             coordinate_array_flag = numpy.any(robotCoordinates)
-            pose_matrix_flag = numpy.any(poseMatrix1)
+
+            # test destination coordinate
             destCoord = [1000 , 800]
 
             # only prints if coordinate array is filled (if apriltag is detected)
             if (coordinate_array_flag != False):
-
+                
+                # calculating absolute robot angle
                 if poseMatrix2[0] >=0:
                     robotAngle =  (numpy.arccos(poseMatrix1[0]) / math.pi) * 180
                 else:
                     robotAngle =  (numpy.arccos(poseMatrix1[0]) / math.pi) * -180
                 
-                #destination coordinates
+                # TRANSPOSED COORDINATES    
+                # we need to transpose the robot coordinates and destination coordinates to be positioned as if
+                # the robot is at the origin. This is to make it easier to calculate the angle between two vectors.
                 destCoordTransposed = [(destCoord[0] - robotCoordinates[0]), (destCoord[1] - robotCoordinates[1])]
 
-                transposedRobotCoordinates = robotCoordinates[0] - robotCoordinates[0], robotCoordinates[1] - robotCoordinates[1]
+                transposedRobotCoordinates = [0, 0]
                 
                 destinationAngleFromXAxis = 180 / math.pi * numpy.arctan(destCoordTransposed[1]/destCoordTransposed[0])
 
-                # if (robotAngle > destinationAngleFromXAxis):
-                #     destinationAngle = robotAngle - destinationAngleFromXAxis
-                # else:
-                #     destinationAngle = destinationAngleFromXAxis - robotAngle
 
                 destinationAngle = 0
 
+                # variable name change for easier read
                 destX = destCoordTransposed[0]
                 destY = destCoordTransposed[1]
 
-                # cordinateSign = (destCoordTransposed > 0).any()
+
+                # CHECK "APRILTAG ANGLE CASES.JPG" to understand math
 
                 # case 1
                 if (destX>0 and (destY)>0):
@@ -118,25 +121,24 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                     destinationAngleFromXAxis = 180 / math.pi * numpy.arctan((destCoordTransposed[1])/(destCoordTransposed[0]))
                     destinationAngle = destinationAngleFromXAxis
 
-                destinationAngle = destinationAngle - robotAngle
+                # how close the robot angle to pointing directly at destination address
+                differenceAngle = destinationAngle - robotAngle
 
                 print("\r robot position: ",robotCoordinates)
                 print("\r robot angle: ", robotAngle)
                 print("\r destination angle from x axis: ", destinationAngleFromXAxis)
-                print("\r destination angle: ", destinationAngle)
+                print("\r destination angle: ", differenceAngle)
 
-            # if (pose_matrix_flag != False):
-            #     print("\r robot angle: %d degrees", robotAngle, end='')
-
-
-              
             if output_stream:
                 output.write(overlay)
 
+            # because the image is flipped the Y destination point needs to be corrected
             yErrorResolution = 1100
 
             if display_stream:
                 overlay = cv2.flip(overlay, 0)
+
+                # displaying destination coordinate as a red circle
                 overlay = cv2.circle(overlay, (destCoord[0], yErrorResolution - destCoord[1]), radius=15, color=(0, 0, 255), thickness=-1)
                 cv2.imshow(detection_window_name, overlay)
                 

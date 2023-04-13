@@ -642,11 +642,6 @@ def detect_tags(image,
 
     for i, detection in enumerate(detections):
 
-        if verbose==10 or verbose==10:
-            # print( 'Detection {} of {}:'.format(i+1, num_detections))
-            print()
-            # print(detection.tostring(indent=2))
-
         pose, e0, e1 = detector.detection_pose(detection, camera_params, tag_size)
 
         if vizualization==1:
@@ -659,24 +654,13 @@ def detect_tags(image,
 
         if annotation==True:
             _annotate_detection(overlay, detection, tag_size)
-
-        if verbose==10:
-            print(detection.tostring(collections.OrderedDict([('Pose',pose),
-                                                          ('InitError', e0),
-                                                          ('FinalError', e1)]),
-                                                          indent=2))
-
-        
             print()
-
-        result.extend([detection, pose, e0, e1])
         
         poseMatrix1 = pose[0]
         poseMatrix2 = pose[1]
         coordinates = detection.center
-        
-
-        
+    
+    # returning robot coordinates, pose data (angle of apriltags)
     return coordinates, poseMatrix1, poseMatrix2, overlay
 
 ######################################################################
