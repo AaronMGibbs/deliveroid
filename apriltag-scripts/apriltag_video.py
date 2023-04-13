@@ -37,8 +37,9 @@ def initializeSerialDataTransfer():
 
 def transmitRobotStateToWifiModule():
     global arduino
-    for i in range(100):
-        state = str(returnRobotPositionedCorrectlyState()) + str(returnRobotCommandInProgress()) + str(returnRobotReturnToOrigin())
+    for i in range(100000000):
+        # state = str(returnRobotPositionedCorrectlyState()) + str(returnRobotCommandInProgress()) + str(returnRobotReturnToOrigin())
+        state = input("input a 3 digit number")
         arduino.write(bytes(state, 'utf-8'))
         time.sleep(0.05)
 
@@ -268,4 +269,5 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
 if __name__ == '__main__':
     # apriltag_video()
     initializeSerialDataTransfer()
-    transmitRobotStateToWifiModule()
+    while(1):
+        transmitRobotStateToWifiModule()

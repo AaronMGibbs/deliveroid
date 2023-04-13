@@ -15,9 +15,7 @@ void loop(){
 
     if (!string_data.isEmpty()){
       last_value = string_data;
-      while(1){
-        Serial.println(last_value);
-      }
+      Serial.println(last_value);
     }
   }
 }
