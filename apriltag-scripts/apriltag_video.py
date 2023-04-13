@@ -95,9 +95,6 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
     location, or specify your own search paths as needed.
     '''
 
-    
-
-    
 
     detector = apriltag.Detector(options, searchpath=apriltag._get_dll_path())
 
@@ -156,11 +153,6 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
 
                 # coordinate array flag is asserted when april tag is detected and robotCoordinate array fills up
                 coordinate_array_flag = numpy.any(robotCoordinates)
-
-                # test destination coordinate
-                
-
-                
 
                 # only prints if coordinate array is filled (if apriltag is detected)
                 if (coordinate_array_flag != False):
@@ -262,8 +254,3 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
 
 if __name__ == '__main__':
     apriltag_video()
-    # updateRobotCommandInProgress(6)
-    # print(returnRobotCommandInProgress())
-        # x = 3
-        # print(transmitRobotStateToWifiModule())
-        # print("hello world")      
