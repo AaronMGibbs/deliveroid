@@ -6,7 +6,9 @@ import cv2
 import apriltag
 import numpy
 import math
-from copy import copy, deepcopy
+
+# GLOBALS
+robotPositionedCorrectlySTATE = False
 
 ################################################################################
 def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/input/multiple_tags.mp4'], # For default cam use -> [0]
@@ -55,6 +57,8 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                 output_path = '../media/output/'+'camera_'+str(stream)+'.avi'
             output = cv2.VideoWriter(output_path, codec, fps, (width, height))
 
+        
+
         while(video.isOpened()):
 
             success, frame = video.read()
@@ -73,6 +77,8 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
 
             # test destination coordinate
             destCoord = [1000 , 800]
+
+            
 
             # only prints if coordinate array is filled (if apriltag is detected)
             if (coordinate_array_flag != False):
@@ -124,6 +130,9 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                 # how close the robot angle to pointing directly at destination address
                 differenceAngle = destinationAngle - robotAngle
 
+                if (differenceAngle > -5 and differenceAngle < 5):
+                    robotPositionedCorrectlySTATE = True
+
                 print("\r robot position: ",robotCoordinates)
                 print("\r robot angle: ", robotAngle)
                 print("\r destination angle from x axis: ", destinationAngleFromXAxis)
@@ -136,6 +145,8 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
             yErrorResolution = 1100
 
             if display_stream:
+
+                # flipping the image so that our coordinate systems starts at bottom left of camera
                 overlay = cv2.flip(overlay, 0)
 
                 # displaying destination coordinate as a red circle
@@ -145,6 +156,8 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                 if cv2.waitKey(1) & 0xFF == ord(' '): # Press space bar to terminate
                     break
 
+def returnRobotState():
+    return robotPositionedCorrectlySTATE
 ################################################################################
 
 if __name__ == '__main__':
