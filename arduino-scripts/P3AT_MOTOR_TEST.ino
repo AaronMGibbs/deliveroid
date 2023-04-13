@@ -233,10 +233,35 @@ int deliveroid_roam(){
 //two deliveroid states for apriltag functionality
 //state 0 is for when the robot is not facing the right direction
 int deliveroid_state0(){
-   
+   while (state==0){
+      deliveroid_turn_left(400, 100);
+   }
 }
 //state 1 is for when the robot is facing the correct direction
 int deliveroid_state1(){
+    int distanceRight, distanceLeft, distanceMiddle;
+
+  while(state==1){
+    deliveroid_move_forward_infinite(350);
+    distanceMiddle = readsensorMiddle();
+    
+    distanceRight = readsensorRight();
+    
+    distanceLeft = readsensorLeft();
+    
+    if (distanceMiddle <= 60 || distanceRight <= 10 || distanceLeft <= 10){
+      
+      deliveroid_stop_1sec();
+      delay(300);
+      deliveroid_move_backwards(3500, 1500);
+      delay(300);
+
+      if (distanceRight <= distanceLeft){
+        deliveroid_turn_right(400, 1000);
+      }
+      else{
+        deliveroid_turn_left(400, 1000);
+      }
    
 }
 
