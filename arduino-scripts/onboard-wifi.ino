@@ -14,10 +14,6 @@ uint8_t broadcastAddress[] = {0xA4, 0xCF, 0x12, 0xC5, 0x17, 0x18};
 //these variables determine the robot's state
 int state1;
 
-
-
-
-
 // Variable to store if sending data was successful
 String success;
 
@@ -39,6 +35,7 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   Serial.print("Bytes received: ");
   Serial.println(len);
   state=receive_message.ste;
+  digitalwrite(10, state);
   
 }
   
