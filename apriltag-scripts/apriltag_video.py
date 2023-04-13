@@ -36,8 +36,8 @@ def initializeSerialDataTransfer():
     arduino = serial.Serial(port='/dev/cu.usbserial-0001', baudrate=115200, timeout=.1)
 
 def transmitRobotStateToWifiModule():
+    global arduino
     for i in range(100):
-        global arduino # make sure this global doesn't affect anything
         state = str(returnRobotPositionedCorrectlyState()) + str(returnRobotCommandInProgress()) + str(returnRobotReturnToOrigin())
         arduino.write(bytes(state, 'utf-8'))
         time.sleep(0.05)
@@ -68,14 +68,17 @@ def updateExitProgramFlag(state):
 def updateRobotPositionedCorrectlyState(state):
     global robotPositionedCorrectlySTATE
     robotPositionedCorrectlySTATE = state
+    transmitRobotStateToWifiModule()
 
 def updateRobotCommandInProgress(state):
     global robotCommandInProgress
     robotCommandInProgress = state
+    transmitRobotStateToWifiModule()
 
 def updateRobotReturnToOrigin(state):
     global robotReturnToOrigin
     robotReturnToOrigin = state
+    transmitRobotStateToWifiModule()
 
 #########################################
 
@@ -263,6 +266,6 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
 ################################################################################
 
 if __name__ == '__main__':
-    apriltag_video()
-    # initializeSerialDataTransfer()
-    # transmitRobotStateToWifiModule()
+    # apriltag_video()
+    initializeSerialDataTransfer()
+    transmitRobotStateToWifiModule()
