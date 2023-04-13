@@ -29,7 +29,8 @@ int IN2B        = 11;
 #define MAX_SPEED                 1000
 #define MAX_TIME                  65536  
 #define maximum_distance          200    
-
+// State Value
+int state;
 // prox sensor distance
 int prox_distance = 100;
 NewPing sonar(trig_pin1, echo_pin1, maximum_distance); //sensor function
@@ -229,6 +230,15 @@ int deliveroid_roam(){
 
   } 
 }
+//two deliveroid states for apriltag functionality
+//state 0 is for when the robot is not facing the right direction
+int deliveroid_state0(){
+   
+}
+//state 1 is for when the robot is facing the correct direction
+int deliveroid_state1(){
+   
+}
 
 /////////////////////////
 // PROX SENSOR METHODS //
@@ -274,9 +284,17 @@ void setup() {
 }
 
 void loop() {
-
-  deliveroid_basic_motor_test(500, 500);
-  deliveroid_roam();
+   state=digitalread(//whatever pin we put it into//
+  //deliveroid_basic_motor_test(500, 500);
+   //deliveroid_roam();
+  if (state==0){
+  deliveroid_state0();
+  }
+  else if (state==1){
+  deliveroid_state1()
+     }
+  else
+  
   STOP_PROGRAM();
 
 }
