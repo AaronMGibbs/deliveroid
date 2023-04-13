@@ -4,8 +4,6 @@
 #include <espnow.h>
 
 
-
-
 // REPLACE WITH THE MAC Address of your receiver 
 uint8_t broadcastAddress[] = {0xA4, 0xCF, 0x12, 0xC5, 0x17, 0x18};
 
@@ -13,9 +11,11 @@ uint8_t broadcastAddress[] = {0xA4, 0xCF, 0x12, 0xC5, 0x17, 0x18};
 
 //these variables determine the robot's state
 //the states are represented like this: state1 state2 state3 EX: if state1=1 and state2=0 and state3=0, this output is 100
+char state[4];
 int state1;
 int state2;
 int state3;
+
 
 
 // Variable to store if sending data was successful
@@ -24,9 +24,8 @@ String success;
 //Structure example to send data
 //Must match the receiver structure
 typedef struct receive_message {
-    int ste1;
-    int ste2;
-    int ste3;
+     char ste1[4];
+  
     
 } receive_message;
 
@@ -40,12 +39,31 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   memcpy(&incomingReadings, incomingData, sizeof(incomingReadings));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  state1= incomingReadings.ste1;
-  state2= incomingReadings.ste2;
-  state3= incomingReadings.ste3;
-  digitalWrite(D1, state1);
-  digitalWrite(D2, state2);
-  digitalWrite(D5, state3);
+  strcpy(state, incomingReadings.ste1);
+  
+  state1=state[0]-'0';
+  state2=state[1]-'0';
+  state3=state[2]-'0';
+  if (state1==1){
+     digitalWrite(D1, 0);
+  }
+  else{
+     digitalWrite(D1, 1);
+  }
+  
+  if (state2==3){
+     digitalWrite(D2, 0);
+  }
+  else{
+     digitalWrite(D2, 1);
+  }
+
+  if (state3==5){
+    digitalWrite(D5, 0);
+  }
+  else{
+    digitalWrite(D5, 1);
+  }
   
 }
   
