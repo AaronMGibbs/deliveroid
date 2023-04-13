@@ -44,7 +44,7 @@ void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
   }
 }
 
-}
+
 //////////////////This is where we'll do apriltag calculations//////////////////////////
 void aprilcalc(){
   state=0;
@@ -87,7 +87,7 @@ void loop() {
     aprilcalc();
 
     //Set values to send
-    send_message.ste= state;
+    apriltag.ste= state;
 
     // Send message via ESP-NOW
     esp_now_send(broadcastAddress, (uint8_t *) &apriltag, sizeof(apriltag));
@@ -95,4 +95,3 @@ void loop() {
  lastTime = millis();
   }
 }
- 
