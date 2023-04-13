@@ -8,13 +8,68 @@ import numpy
 import math
 
 # GLOBALS
+robotPositionedCorrectlySTATE   = 1
+ROBOTNOTFACINGDESTINATION       = 1
+ROBOTFACINGDESTINATION          = 2
 
+robotCommandInProgress          = 3
+WAITINGFORCOMMAND               = 3
+COMMANDINPROGRESS               = 4
 
+robotReturnToOrigin             = 5
+ROBOTNOTRETURNING               = 5
+ROBOTRETURNINGTOORIGIN          = 6  
+
+ROBOTEXITPROGRAMFLAG            = 0
 
 ################################################################################
 
-def returnRobotState():
+
+def transmitRobotStateToWifiModule():
+    state = str(robotPositionedCorrectlySTATE) + str(robotCommandInProgress) + str(robotReturnToOrigin)
+    return state
+    # ADD THE METHODS THAT SEND THIS TO THE WIFI MODULE
+
+
+
+# RETURN METHODS
+def returnExitProgramFlag():
+    global ROBOTEXITPROGRAMFLAG
+    return ROBOTEXITPROGRAMFLAG
+
+def returnRobotPositionedCorrectlyState():
+    global robotPositionedCorrectlySTATE
     return robotPositionedCorrectlySTATE
+
+def returnRobotCommandInProgress():
+    global robotCommandInProgress
+    return robotCommandInProgress
+
+def returnRobotReturnToOrigin():
+    global robotReturnToOrigin
+    return robotReturnToOrigin
+
+
+# UPDATE METHODS
+def updateExitProgramFlag(state):
+    global ROBOTEXITPROGRAMFLAG
+    ROBOTEXITPROGRAMFLAG = state
+
+def updateRobotPositionedCorrectlyState(state):
+    global robotPositionedCorrectlySTATE
+    robotPositionedCorrectlySTATE = state
+
+def updateRobotCommandInProgress(state):
+    global robotCommandInProgress
+    robotCommandInProgress = state
+
+def updateRobotReturnToOrigin(state):
+    global robotReturnToOrigin
+    robotReturnToOrigin = state
+
+#########################################
+
+
 def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/input/multiple_tags.mp4'], # For default cam use -> [0]
                    output_stream=False,
                    display_stream=True,
@@ -40,23 +95,14 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
     location, or specify your own search paths as needed.
     '''
 
-    robotPositionedCorrectlySTATE   = 1
-    ROBOTNOTFACINGDESTINATION       = 1
-    ROBOTFACINGDESTINATION          = 2
+    
 
-    robotCommandInProgress          = 3
-    WAITINGFORCOMMAND               = 3
-    COMMANDINPROGRESS               = 4
-
-    robotReturnToOrigin             = 5
-    ROBOTNOTRETURNING               = 5
-    ROBOTRETURNINGTOORIGIN          = 6  
-
-
+    
 
     detector = apriltag.Detector(options, searchpath=apriltag._get_dll_path())
 
     for stream in input_streams:
+        
 
         video = cv2.VideoCapture(0)
 
@@ -76,24 +122,26 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
 
         
         while(1): 
-            if EXITPROGRAMFLAG == 1:
+            if returnExitProgramFlag() == 1:
                 break
+
             # IF ROBOT IS NOT RETURNING TO ORIGIN AND IS AWAITING  COMMAND, THEN HAVE THE USER 
             # INPUT DESTINATION COORDINATES
-            if (robotReturnToOrigin == ROBOTNOTRETURNING and robotCommandInProgress == WAITINGFORCOMMAND):
+            if (returnRobotReturnToOrigin() == ROBOTNOTRETURNING and returnRobotCommandInProgress() == WAITINGFORCOMMAND):
                 destCoord = [0 , 0]
                 destCoord[0] = int(input("ENTER X COORDINATE FOR DESTINATION: "))
                 destCoord[1] = int(input("ENTER Y COORDINATE FOR DESTINATION: "))
-                robotCommandInProgress = COMMANDINPROGRESS
+                updateRobotCommandInProgress(4)
+                
 
             # ELSE THE ROBOT IS RETURNING TO ORIGIN SO THE DESTINATION COORDINATES HAVE TO BE SET TO ORIGIN
             # set to 50 so point is visible on screen
             else:
                 destCoord[0] = 50
                 destCoord[1] = 50
-                robotReturnToOrigin = ROBOTRETURNINGTOORIGIN
+                updateRobotReturnToOrigin(ROBOTRETURNINGTOORIGIN)
 
-            while(robotCommandInProgress == COMMANDINPROGRESS):
+            while(returnRobotCommandInProgress() == COMMANDINPROGRESS):
 
                 success, frame = video.read()
                 if not success:
@@ -165,9 +213,9 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                     differenceAngle = destinationAngle - robotAngle
 
                     if (differenceAngle > -5 and differenceAngle < 5):
-                        robotPositionedCorrectlySTATE = 2
+                        updateRobotPositionedCorrectlyState(ROBOTFACINGDESTINATION)
                     else:
-                        robotPositionedCorrectlySTATE = 1
+                        updateRobotPositionedCorrectlyState(ROBOTNOTFACINGDESTINATION)
 
                     
 
@@ -176,12 +224,12 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
 
                     if (robotDistancefromDestination[0] > -100 and robotDistancefromDestination[0] < 100):
                         if (robotDistancefromDestination[1] > -100 and robotDistancefromDestination[1] < 100):
-                            if (robotCommandInProgress == COMMANDINPROGRESS):
-                                robotReturnToOrigin = ROBOTRETURNINGTOORIGIN
+                            if (returnRobotCommandInProgress() == COMMANDINPROGRESS) and returnRobotReturnToOrigin() == ROBOTNOTRETURNING:
+                                updateRobotReturnToOrigin(ROBOTRETURNINGTOORIGIN)
                                 break
                             else:
-                                robotReturnToOrigin = ROBOTNOTRETURNING
-                                robotCommandInProgress = WAITINGFORCOMMAND
+                                updateRobotReturnToOrigin(ROBOTNOTRETURNING)
+                                updateRobotCommandInProgress(WAITINGFORCOMMAND)
                                 break
 
                     print("\r robot position: ",robotCoordinates)
@@ -207,10 +255,15 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                     cv2.imshow(detection_window_name, overlay)
                     
                     if cv2.waitKey(1) & 0xFF == ord(' '): # Press space bar to terminate
-                        EXITPROGRAMFLAG = 1
+                        updateExitProgramFlag(1)
                         break
 
 ################################################################################
 
 if __name__ == '__main__':
     apriltag_video()
+    # updateRobotCommandInProgress(6)
+    # print(returnRobotCommandInProgress())
+        # x = 3
+        # print(transmitRobotStateToWifiModule())
+        # print("hello world")      
