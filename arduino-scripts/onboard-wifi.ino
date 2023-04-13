@@ -9,9 +9,12 @@
 // REPLACE WITH THE MAC Address of your receiver 
 uint8_t broadcastAddress[] = {0xA4, 0xCF, 0x12, 0xC5, 0x17, 0x18};
 
-//these variables determine where the robot will turn and enable it to go
-uint8_t state;
-bool globalenable;
+int globalenable;
+
+//these variables determine the robot's state
+int state1;
+int state2;
+// It will look like this: State1 State2 EX: if state1=1 and state2=0 the state will be 10
 
 // Define variables to store incoming readings
 // int for incoming obstacle is used to determine what direction the obstruction is in (1 for left, 2 for center, 3 for right)
