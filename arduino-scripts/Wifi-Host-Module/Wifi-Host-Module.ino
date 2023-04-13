@@ -13,8 +13,8 @@ unsigned long lastTime = 0;
 unsigned long timerDelay = 2000;  // send readings timer
 
 //this variable will determine what state the robot is in 
-int state1;
 
+char state1[4];
 
 // Variable to store if sending data was successful
 String success;
@@ -22,7 +22,7 @@ String success;
 //Structure example to send data
 //Must match the receiver structure
 typedef struct send_message {
-    int ste1;
+    char ste1[4];
 
  
 } send_message;
@@ -49,7 +49,10 @@ void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
 
 //////////////////This is where we'll do apriltag calculations//////////////////////////
 void aprilcalc(){
-  state1=0;
+ state1[0]='1';
+ state1[1]='3';
+ state1[2]='5';
+ 
   
 }
 
@@ -85,12 +88,10 @@ void loop() {
   
    if ((millis() - lastTime) > timerDelay) {
     
-
-    //Get apriltag readings
-    aprilcalc();
+     aprilcalc();
 
     //Set values to send
-    apriltag.ste1= state1;
+    strcpy(apriltag.ste1, state1);
     
 
     // Send message via ESP-NOW
@@ -99,3 +100,4 @@ void loop() {
  lastTime = millis();
   }
 }
+ 
