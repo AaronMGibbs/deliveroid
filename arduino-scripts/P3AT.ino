@@ -212,16 +212,16 @@ int deliveroid_avoid(uint16_t distanceMiddle,uint16_t distanceRight,uint16_t dis
   if (distanceMiddle <= 60 || distanceRight <= 10 || distanceLeft <= 10){
     deliveroid_stop_1sec();
     delay(300);
-    deliveroid_move_backwards(3500, 1500);
+    deliveroid_move_backwards(300, 1500);
     delay(300);
 
     if (distanceRight <= distanceLeft){
-      deliveroid_turn_right(400, 1000);
+      deliveroid_turn_right(375, 1000);
     }
     else{
-      deliveroid_turn_left(400, 1000);
+      deliveroid_turn_left(375, 1000);
     }
-    deliveroid_move_forward(350,500);
+    deliveroid_move_forward(300,2000);
   }
 }
 
@@ -266,16 +266,24 @@ int deliveroid_move_to_destination(){
   // GPIO2 = COMMAND IN PROGRESS
 
   while (i<2){
-    ROBOTROTATIONSTATE = digitalRead(GPIO1);
-    ROBOTCOMMANDSTATE = digitalRead(GPIO2);
+    ROBOTROTATIONSTATE = LOW;
+    ROBOTCOMMANDSTATE = LOW;
+    while(1){
+      deliveroid_stop(1000);
+      ROBOTROTATIONSTATE = digitalRead(GPIO1);
+      ROBOTCOMMANDSTATE = digitalRead(GPIO2);
+      if (ROBOTCOMMANDSTATE == HIGH){
+        break;
+      }
+    }
     while (ROBOTCOMMANDSTATE == HIGH){
       while (ROBOTROTATIONSTATE== LOW){        
-        deliveroid_turn_left(400,100);
+        deliveroid_turn_left(150,100);
         delay(300);
         ROBOTROTATIONSTATE = digitalRead(GPIO1);
         ROBOTCOMMANDSTATE = digitalRead(GPIO2);
       }
-      deliveroid_move_forward_infinite(350);
+      deliveroid_move_forward_infinite(50);
       distanceMiddle = readsensorMiddle();
       distanceRight = readsensorRight();  
       distanceLeft = readsensorLeft();
@@ -303,6 +311,8 @@ void setup() {
   pinMode(IN1B, OUTPUT);
   pinMode(IN2A, OUTPUT);
   pinMode(IN2B, OUTPUT);
+
+  Serial.begin(115200);
 
 }
 
