@@ -37,11 +37,10 @@ def initializeSerialDataTransfer():
 
 def transmitRobotStateToWifiModule():
     global arduino
-    for i in range(100000000):
-        # state = str(returnRobotPositionedCorrectlyState()) + str(returnRobotCommandInProgress()) + str(returnRobotReturnToOrigin())
-        state = input("input a 3 digit number")
-        arduino.write(bytes(state, 'utf-8'))
-        time.sleep(0.05)
+    state = str(returnRobotPositionedCorrectlyState()) + str(returnRobotCommandInProgress()) + str(returnRobotReturnToOrigin())
+    # state = input("input a 3 digit number")
+    arduino.write(bytes(state, 'utf-8'))
+    time.sleep(0.05)
 
 # RETURN METHODS
 def returnExitProgramFlag():
@@ -131,7 +130,8 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                 output_path = '../media/output/'+'camera_'+str(stream)+'.avi'
             output = cv2.VideoWriter(output_path, codec, fps, (width, height))
 
-        
+
+        transmitRobotStateToWifiModule()    
         while(1): 
             if returnExitProgramFlag() == 1:
                 break
@@ -232,6 +232,7 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
                         if (robotDistancefromDestination[1] > -100 and robotDistancefromDestination[1] < 100):
                             if (returnRobotCommandInProgress() == COMMANDINPROGRESS) and returnRobotReturnToOrigin() == ROBOTNOTRETURNING:
                                 updateRobotReturnToOrigin(ROBOTRETURNINGTOORIGIN)
+                                print("ROBOT RETURNING TO ORIGIN, ", returnRobotReturnToOrigin())
                                 break
                             else:
                                 updateRobotReturnToOrigin(ROBOTNOTRETURNING)
@@ -267,7 +268,7 @@ def apriltag_video(input_streams=['../media/input/single_tag.mp4', '../media/inp
 ################################################################################
 
 if __name__ == '__main__':
-    # apriltag_video()
     initializeSerialDataTransfer()
-    while(1):
-        transmitRobotStateToWifiModule()
+    apriltag_video()
+    
+    

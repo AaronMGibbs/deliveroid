@@ -12,7 +12,7 @@ String string_data = "";
 uint8_t broadcastAddress[] = {0x8C, 0xAA, 0xB5, 0x50, 0xFA, 0x57};
 
 unsigned long lastTime = 0;  
-unsigned long timerDelay = 2000;  // send readings timer
+unsigned long timerDelay = 200;  // send readings timer
 
 //this variable will determine what state the robot is in 
 
