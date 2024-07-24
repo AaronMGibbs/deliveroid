@@ -1,4 +1,3 @@
-#include <Servo.h>
 #include <NewPing.h>
 
 // H-BRIDGE PINS
@@ -7,12 +6,25 @@ int IN1B        = 5;
 int IN2A        = 6; 
 int IN2B        = 11; 
 
-// PROX SENSOR PINS 
-#define trig_pin A1
-#define echo_pin A0 
+// WIFI MODULE PINS
+int GPIO1   = 4;      //robotPositionedCorrectlySTATE
+int GPIO2   = 8;      //robotCommandInProgress
 
-// SERVO MOTOR
-Servo servo_motor; //our servo name
+int ROBOTROTATIONSTATE = LOW;
+int ROBOTCOMMANDSTATE = LOW;
+
+
+// PROX SENSOR PINS 
+#define trig_pin1 A1
+#define echo_pin1 A0
+
+#define trig_pin2 A3
+#define echo_pin2 A2
+
+#define trig_pin3 A5
+#define echo_pin3 A4
+
+
 
 
 #define MOTOR_DEFAULT_SPEED     1000
@@ -30,7 +42,9 @@ Servo servo_motor; //our servo name
 
 // prox sensor distance
 int prox_distance = 100;
-NewPing sonar(trig_pin, echo_pin, maximum_distance); //sensor function
+NewPing sonar(trig_pin1, echo_pin1, maximum_distance); //sensor function
+NewPing sonar1(trig_pin2, echo_pin2, maximum_distance);
+NewPing sonar2(trig_pin3, echo_pin3, maximum_distance);
 
 //////////////////
 // ERROR METHOD //
@@ -127,7 +141,6 @@ int deliveroid_turn_right(uint16_t speed, uint16_t duration){
 }
 
 
-
 int deliveroid_move_forward_infinite(uint16_t speed){
   if (speed < 0 || speed > MAX_SPEED){
     return SPEED_OUT_OF_RANGE_ERROR;
@@ -149,7 +162,6 @@ int deliveroid_move_forward_infinite(uint16_t speed){
 void deliveroid_stop_1sec(){
   deliveroid_stop(1000);
 }
-  
 
 int deliveroid_basic_motor_test(uint16_t speed, uint16_t duration){
   int return_code;
@@ -196,67 +208,103 @@ int deliveroid_basic_motor_test(uint16_t speed, uint16_t duration){
 return DELIVEROID_SUCCESS;
 }
 
+int deliveroid_avoid(uint16_t distanceMiddle,uint16_t distanceRight,uint16_t distanceLeft){
+  if (distanceMiddle <= 60 || distanceRight <= 10 || distanceLeft <= 10){
+    deliveroid_stop_1sec();
+    delay(300);
+    deliveroid_move_backwards(300, 1500);
+    delay(300);
 
-int deliveroid_roam(){
-  int distanceRight, distanceLeft;
+    if (distanceRight <= distanceLeft){
+      deliveroid_turn_right(375, 1000);
+    }
+    else{
+      deliveroid_turn_left(375, 1000);
+    }
+    deliveroid_move_forward(300,2000);
+  }
+}
 
-  while(1){
-    deliveroid_move_forward_infinite(350);
-    if (prox_distance <= 60){
-      
-      deliveroid_stop_1sec();
-      delay(300);
-      deliveroid_move_backwards(3500, 1500);
-      delay(300);
-      distanceRight = lookRight();
-      delay(300);
-      distanceLeft = lookLeft();
-      delay(300);
+/////////////////////////
+// PROX SENSOR METHODS //
+/////////////////////////
 
-      if (distanceRight <= distanceLeft){
-        deliveroid_turn_right(400, 1000);
-      }
-      else{
-        deliveroid_turn_left(400, 1000);
+int readsensorMiddle(){
+  delay(70);
+  int sensorMiddle = sonar.ping_cm();
+  if (sensorMiddle==0){
+    sensorMiddle=250;
+  }
+  return sensorMiddle;
+}
+
+int readsensorRight(){
+  delay(70);
+  int sensorRight = sonar1.ping_cm();
+  if (sensorRight==0){
+    sensorRight=250;
+  }
+  return sensorRight;
+}
+
+int readsensorLeft(){
+  delay(70);
+  int sensorLeft = sonar2.ping_cm();
+  if (sensorLeft==0){
+    sensorLeft=250;
+  }
+  return sensorLeft;
+}
+
+int deliveroid_move_to_destination(){
+  ROBOTROTATIONSTATE = digitalRead(GPIO1);
+  ROBOTCOMMANDSTATE = digitalRead(GPIO2);
+  int i = 0;
+  int distanceRight, distanceLeft, distanceMiddle;
+  
+  // GPIO1 = POINTING TO DESTINATION
+  // GPIO2 = COMMAND IN PROGRESS
+
+  while (i<2){
+    ROBOTROTATIONSTATE = LOW;
+    ROBOTCOMMANDSTATE = LOW;
+    while(1){
+      deliveroid_stop(1000);
+      ROBOTROTATIONSTATE = digitalRead(GPIO1);
+      ROBOTCOMMANDSTATE = digitalRead(GPIO2);
+      if (ROBOTCOMMANDSTATE == HIGH){
+        break;
       }
     }
-    prox_distance = readPing();
-  } 
-}
-
-/////////////////////////
-// PROX & SERVO METHODS //
-/////////////////////////
-
-int readPing(){
-  delay(70);
-  int cm = sonar.ping_cm();
-  if (cm==0){
-    cm=250;
+    while (ROBOTCOMMANDSTATE == HIGH){
+      while (ROBOTROTATIONSTATE== LOW){        
+        deliveroid_turn_left(150,100);
+        delay(300);
+        ROBOTROTATIONSTATE = digitalRead(GPIO1);
+        ROBOTCOMMANDSTATE = digitalRead(GPIO2);
+      }
+      deliveroid_move_forward_infinite(50);
+      distanceMiddle = readsensorMiddle();
+      distanceRight = readsensorRight();  
+      distanceLeft = readsensorLeft();
+      deliveroid_avoid(distanceMiddle,distanceRight,distanceLeft);
+      ROBOTROTATIONSTATE = digitalRead(GPIO1);
+      ROBOTCOMMANDSTATE = digitalRead(GPIO2);
+    }
+    ROBOTROTATIONSTATE = digitalRead(GPIO1);
+    ROBOTCOMMANDSTATE = digitalRead(GPIO2);
+    i++;
   }
-  return cm;
+ 
 }
 
-int lookRight(){
-  servo_motor.write(0);
-  delay(500);
-  int distance = readPing();
-  delay(100);
-  return distance;
-}
-
-int lookLeft(){
-  servo_motor.write(180);
-  delay(500);
-  int distance = readPing();
-  delay(100);
-  servo_motor.write(90);
-  return distance;
-  delay(100);
-}
 
 void setup() {
   // Serial.begin(9600);
+
+  // SETTING WIFI MODULE PINS
+  pinMode(GPIO1, INPUT);
+  pinMode(GPIO2, INPUT);
 
   // SETTING H-BRIDGE PINS
   pinMode(IN1A, OUTPUT);
@@ -264,14 +312,14 @@ void setup() {
   pinMode(IN2A, OUTPUT);
   pinMode(IN2B, OUTPUT);
 
-  // SETTING SERVO PINS
-  servo_motor.attach(13); 
+  Serial.begin(115200);
+
 }
 
 void loop() {
 
-  deliveroid_basic_motor_test(500, 500);
-  deliveroid_roam();
+  // deliveroid_basic_motor_test(500, 500);
+  deliveroid_move_to_destination();
   STOP_PROGRAM();
 
 }
